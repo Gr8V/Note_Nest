@@ -22,4 +22,10 @@ class NotesProvider extends ChangeNotifier {
     _notes.add(noteEntry); // update local list
     notifyListeners();     // update UI
   }
+  Future<void> deleteNoteById(String id) async {
+    await LocalStorageService.deleteNote(id);
+    _notes.removeWhere((note) => note.id == id);
+    notifyListeners();
+  }
+
 }

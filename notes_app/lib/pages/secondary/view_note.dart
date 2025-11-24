@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:notes_app/models/notes_model.dart';
+import 'package:notes_app/providers/notes_provider.dart';
+import 'package:provider/provider.dart';
 
 class ViewNote extends StatefulWidget {
   final Note note;
@@ -53,41 +55,57 @@ class _ViewNoteState extends State<ViewNote> with SingleTickerProviderStateMixin
     );
   }
 
-  void _deleteNote() {
-    showDialog(
+  Future<void> _deleteNote() async {
+    final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Text('Delete Note'),
-        content: const Text('Are you sure you want to delete this note? This action cannot be undone.'),
+        content: const Text(
+            'Are you sure you want to delete this note? This action cannot be undone.'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext, false),
             child: const Text('Cancel'),
           ),
           FilledButton(
             onPressed: () {
-              // TODO: Delete note from database
-              Navigator.pop(context); // Close dialog
-              Navigator.pop(context, 'deleted'); // Return to previous screen
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: const Text('Note deleted successfully'),
-                  backgroundColor: Colors.red.shade400,
-                  behavior: SnackBarBehavior.floating,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                ),
-              );
+              Navigator.pop(dialogContext, true);
             },
-            style: FilledButton.styleFrom(
-              backgroundColor: Colors.red,
-            ),
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
             child: const Text('Delete'),
           ),
         ],
       ),
     );
+
+    if (confirmed != true) return;
+
+    if (!mounted) return;
+
+    final notesProvider = context.read<NotesProvider>();
+    await notesProvider.deleteNoteById(widget.note.id);
+
+    if (!mounted) return;
+
+    // ✅ Show snackbar BEFORE popping this page
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('Note deleted successfully'),
+        backgroundColor: Colors.red.shade400,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
+
+    // Small delay so snackbar can appear smoothly
+    await Future.delayed(const Duration(milliseconds: 200));
+
+    // Now safely pop this page and return true
+    Navigator.pop(context, true);
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -350,25 +368,5 @@ class _ViewNoteState extends State<ViewNote> with SingleTickerProviderStateMixin
         ),
       ),
     );
-  }
-
-  String _formatDate(String timestamp) {
-    try {
-      final date = DateTime.parse(timestamp);
-      final now = DateTime.now();
-      final difference = now.difference(date);
-
-      if (difference.inDays == 0) {
-        return 'Today at ${date.hour}:${date.minute.toString().padLeft(2, '0')}';
-      } else if (difference.inDays == 1) {
-        return 'Yesterday at ${date.hour}:${date.minute.toString().padLeft(2, '0')}';
-      } else if (difference.inDays < 7) {
-        return '${difference.inDays} days ago';
-      } else {
-        return '${date.day}/${date.month}/${date.year}';
-      }
-    } catch (e) {
-      return 'Unknown date';
-    }
   }
 }

@@ -35,6 +35,22 @@ class LocalStorageService {
     final List decoded = jsonDecode(raw);
     return decoded.map((e) => Note.fromJson(e)).toList();
   }
+  static Future<void> deleteNote(String noteId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_notesKey);
+
+    if (raw == null) return;
+
+    // Decode stored JSON list
+    List decoded = jsonDecode(raw);
+
+    // Remove the note with matching ID
+    decoded.removeWhere((note) => note["id"] == noteId);
+
+    // Save updated list back to prefs
+    await prefs.setString(_notesKey, jsonEncode(decoded));
+  }
+
 
 
   // ================================================================
