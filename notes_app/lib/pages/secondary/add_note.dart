@@ -101,9 +101,9 @@ class _AddNoteState extends State<AddNote> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    //theme
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
     return Scaffold(
       backgroundColor: colorScheme.surface,
       appBar: AppBar(

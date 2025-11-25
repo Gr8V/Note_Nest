@@ -26,6 +26,28 @@ class LocalStorageService {
 
     await prefs.setString(_notesKey, jsonEncode(notesList));
   }
+  
+  static Future<void> editNote(Note updatedNote) async {
+  final prefs = await SharedPreferences.getInstance();
+  final raw = prefs.getString(_notesKey);
+
+  if (raw == null) return;
+
+  List decoded = jsonDecode(raw);
+
+  // Find index of note with same ID
+  final index = decoded.indexWhere((note) => note["id"] == updatedNote.id);
+
+  if (index == -1) return; // Note not found
+
+  // Replace old data with new one
+  decoded[index] = updatedNote.toJson();
+
+  // Save updated list
+  await prefs.setString(_notesKey, jsonEncode(decoded));
+}
+
+
   static Future<List<Note>> getNotes() async {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString("notes_data");
@@ -35,6 +57,7 @@ class LocalStorageService {
     final List decoded = jsonDecode(raw);
     return decoded.map((e) => Note.fromJson(e)).toList();
   }
+
   static Future<void> deleteNote(String noteId) async {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString(_notesKey);

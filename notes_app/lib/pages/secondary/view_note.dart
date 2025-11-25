@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:notes_app/models/notes_model.dart';
+import 'package:notes_app/pages/secondary/edit_note.dart';
 import 'package:notes_app/providers/notes_provider.dart';
+import 'package:notes_app/utils.dart';
 import 'package:provider/provider.dart';
 
 class ViewNote extends StatefulWidget {
@@ -43,19 +45,11 @@ class _ViewNoteState extends State<ViewNote> with SingleTickerProviderStateMixin
     super.dispose();
   }
 
-  void _editNote() {
-    // TODO: Navigate to edit page
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('Edit functionality coming soon!'),
-        backgroundColor: Colors.blue.shade400,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      ),
-    );
+  void _editNote(Note currentNote) {
+    pushWithSlideFade(context, EditNote(note: currentNote));
   }
 
-  Future<void> _deleteNote() async {
+  Future<void> _deleteNote(Note currentNote) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -80,15 +74,13 @@ class _ViewNoteState extends State<ViewNote> with SingleTickerProviderStateMixin
     );
 
     if (confirmed != true) return;
-
     if (!mounted) return;
 
     final notesProvider = context.read<NotesProvider>();
-    await notesProvider.deleteNoteById(widget.note.id);
+    await notesProvider.deleteNoteById(currentNote.id);
 
     if (!mounted) return;
 
-    // ✅ Show snackbar BEFORE popping this page
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: const Text('Note deleted successfully'),
@@ -98,17 +90,22 @@ class _ViewNoteState extends State<ViewNote> with SingleTickerProviderStateMixin
       ),
     );
 
-    // Small delay so snackbar can appear smoothly
     await Future.delayed(const Duration(milliseconds: 200));
-
-    // Now safely pop this page and return true
+    if (!mounted) return;
     Navigator.pop(context, true);
   }
 
-
-
   @override
   Widget build(BuildContext context) {
+    // Try to find the current note, or use the original if not found (deleted)
+    final currentNote = context.select<NotesProvider, Note?>((provider) {
+      try {
+        return provider.notes.firstWhere((n) => n.id == widget.note.id);
+      } catch (e) {
+        return null;
+      }
+    }) ?? widget.note;
+
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     
@@ -129,7 +126,7 @@ class _ViewNoteState extends State<ViewNote> with SingleTickerProviderStateMixin
             end: Alignment.bottomRight,
           ).createShader(bounds),
           child: Text(
-            widget.note.title.isEmpty ? 'Untitled' : widget.note.title,
+            currentNote.title.isEmpty ? 'Untitled' : currentNote.title,
             style: const TextStyle(
               color: Colors.white,
               fontSize: 24,
@@ -141,7 +138,6 @@ class _ViewNoteState extends State<ViewNote> with SingleTickerProviderStateMixin
           ),
         ),
         actions: [
-          // Edit Button
           Container(
             margin: const EdgeInsets.only(right: 8),
             decoration: BoxDecoration(
@@ -161,7 +157,7 @@ class _ViewNoteState extends State<ViewNote> with SingleTickerProviderStateMixin
               color: Colors.transparent,
               child: InkWell(
                 borderRadius: BorderRadius.circular(12),
-                onTap: _editNote,
+                onTap: () => _editNote(currentNote),
                 child: const Padding(
                   padding: EdgeInsets.all(10),
                   child: Icon(Icons.edit, color: Colors.white, size: 20),
@@ -169,7 +165,6 @@ class _ViewNoteState extends State<ViewNote> with SingleTickerProviderStateMixin
               ),
             ),
           ),
-          // Delete Button
           Container(
             margin: const EdgeInsets.only(right: 12),
             decoration: BoxDecoration(
@@ -179,9 +174,9 @@ class _ViewNoteState extends State<ViewNote> with SingleTickerProviderStateMixin
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.red.withValues(alpha: 0.4),
+                  color: Colors.redAccent,
                   blurRadius: 8,
-                  offset: const Offset(0, 4),
+                  offset: Offset(0, 4),
                 ),
               ],
             ),
@@ -189,7 +184,7 @@ class _ViewNoteState extends State<ViewNote> with SingleTickerProviderStateMixin
               color: Colors.transparent,
               child: InkWell(
                 borderRadius: BorderRadius.circular(12),
-                onTap: _deleteNote,
+                onTap: () => _deleteNote(currentNote),
                 child: const Padding(
                   padding: EdgeInsets.all(10),
                   child: Icon(Icons.delete, color: Colors.white, size: 20),
@@ -198,19 +193,8 @@ class _ViewNoteState extends State<ViewNote> with SingleTickerProviderStateMixin
             ),
           ),
         ],
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                colorScheme.onSurface.withValues(alpha: 0.15),
-                Colors.transparent,
-              ],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            ),
-          ),
-        ),
       ),
+
       body: FadeTransition(
         opacity: _fadeAnimation,
         child: SlideTransition(
@@ -221,6 +205,7 @@ class _ViewNoteState extends State<ViewNote> with SingleTickerProviderStateMixin
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+
                   // Title Section
                   Container(
                     width: double.infinity,
@@ -243,11 +228,7 @@ class _ViewNoteState extends State<ViewNote> with SingleTickerProviderStateMixin
                       children: [
                         Row(
                           children: [
-                            Icon(
-                              Icons.title,
-                              color: colorScheme.primary,
-                              size: 20,
-                            ),
+                            Icon(Icons.title, color: colorScheme.primary, size: 20),
                             const SizedBox(width: 8),
                             Text(
                               'Title',
@@ -255,14 +236,13 @@ class _ViewNoteState extends State<ViewNote> with SingleTickerProviderStateMixin
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
                                 color: colorScheme.onSurface.withValues(alpha: 0.6),
-                                letterSpacing: 1.2,
                               ),
                             ),
                           ],
                         ),
                         const SizedBox(height: 12),
                         Text(
-                          widget.note.title.isEmpty ? 'Untitled Note' : widget.note.title,
+                          currentNote.title.isEmpty ? 'Untitled Note' : currentNote.title,
                           style: TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.bold,
@@ -273,8 +253,9 @@ class _ViewNoteState extends State<ViewNote> with SingleTickerProviderStateMixin
                       ],
                     ),
                   ),
+
                   const SizedBox(height: 20),
-                  
+
                   // Content Section
                   Container(
                     width: double.infinity,
@@ -292,11 +273,7 @@ class _ViewNoteState extends State<ViewNote> with SingleTickerProviderStateMixin
                       children: [
                         Row(
                           children: [
-                            Icon(
-                              Icons.description_outlined,
-                              color: colorScheme.primary,
-                              size: 20,
-                            ),
+                            Icon(Icons.description_outlined, color: colorScheme.primary, size: 20),
                             const SizedBox(width: 8),
                             Text(
                               'Content',
@@ -304,16 +281,15 @@ class _ViewNoteState extends State<ViewNote> with SingleTickerProviderStateMixin
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
                                 color: colorScheme.onSurface.withValues(alpha: 0.6),
-                                letterSpacing: 1.2,
                               ),
                             ),
                           ],
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          widget.note.content.isEmpty 
+                          currentNote.content.isEmpty 
                               ? 'No content available' 
-                              : widget.note.content,
+                              : currentNote.content,
                           style: TextStyle(
                             fontSize: 16,
                             height: 1.8,
@@ -323,8 +299,9 @@ class _ViewNoteState extends State<ViewNote> with SingleTickerProviderStateMixin
                       ],
                     ),
                   ),
+
                   const SizedBox(height: 20),
-                  
+
                   // Metadata Section
                   Container(
                     width: double.infinity,
@@ -343,15 +320,11 @@ class _ViewNoteState extends State<ViewNote> with SingleTickerProviderStateMixin
                     ),
                     child: Row(
                       children: [
-                        Icon(
-                          Icons.access_time,
-                          color: colorScheme.primary,
-                          size: 18,
-                        ),
+                        Icon(Icons.access_time, color: colorScheme.primary, size: 18),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
-                            'Created: ${widget.note.date}',
+                            'Created: ${currentNote.date}',
                             style: TextStyle(
                               fontSize: 13,
                               color: colorScheme.onSurface.withValues(alpha: 0.7),
@@ -361,6 +334,7 @@ class _ViewNoteState extends State<ViewNote> with SingleTickerProviderStateMixin
                       ],
                     ),
                   ),
+
                 ],
               ),
             ),
