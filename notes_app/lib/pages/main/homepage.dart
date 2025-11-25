@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:notes_app/pages/secondary/add_note.dart';
+import 'package:notes_app/pages/secondary/folders_page.dart';
 import 'package:notes_app/pages/secondary/settings.dart';
+import 'package:notes_app/pages/secondary/trash_page.dart';
 import 'package:notes_app/pages/secondary/view_note.dart';
 import 'package:notes_app/providers/notes_provider.dart';
 import 'package:notes_app/utils.dart';
@@ -148,8 +150,8 @@ class _HomePageState extends State<HomePage> {
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      colorScheme.primary.withOpacity(0.25),
-                      colorScheme.secondary.withOpacity(0.25),
+                      colorScheme.primary.withValues(alpha: 0.25),
+                      colorScheme.secondary.withValues(alpha: 0.25),
                     ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
@@ -159,7 +161,7 @@ class _HomePageState extends State<HomePage> {
                   children: [
                     CircleAvatar(
                       radius: 32,
-                      backgroundColor: colorScheme.primary.withOpacity(0.2),
+                      backgroundColor: colorScheme.primary.withValues(alpha: 0.2),
                       child: Icon(
                         Icons.person,
                         color: colorScheme.primary,
@@ -180,7 +182,7 @@ class _HomePageState extends State<HomePage> {
                       "Organize everything",
                       style: TextStyle(
                         fontSize: 12,
-                        color: colorScheme.onSurface.withOpacity(0.6),
+                        color: colorScheme.onSurface.withValues(alpha: 0.6),
                       ),
                     ),
                   ],
@@ -195,7 +197,7 @@ class _HomePageState extends State<HomePage> {
                 label: "Folders",
                 colorScheme: colorScheme,
                 onTap: () {
-                  // TODO: navigate to folders page
+                  pushWithSlideFade(context, FoldersPage());
                 },
               ),
 
@@ -204,7 +206,7 @@ class _HomePageState extends State<HomePage> {
                 label: "Trash",
                 colorScheme: colorScheme,
                 onTap: () {
-                  // TODO: navigate to trash page
+                  pushWithSlideFade(context, TrashPage());
                 },
               ),
 
@@ -217,7 +219,7 @@ class _HomePageState extends State<HomePage> {
                   child: Text(
                     "Notes App v1.0",
                     style: TextStyle(
-                      color: colorScheme.onSurface.withOpacity(0.4),
+                      color: colorScheme.onSurface.withValues(alpha: 0.4),
                       fontSize: 12,
                     ),
                   ),
@@ -249,7 +251,7 @@ Widget _drawerTile({
   return Padding(
     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
     child: Material(
-      color: colorScheme.surfaceContainerHighest.withOpacity(0.4),
+      color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
       borderRadius: BorderRadius.circular(14),
       child: InkWell(
         borderRadius: BorderRadius.circular(14),
@@ -272,7 +274,7 @@ Widget _drawerTile({
               Icon(
                 Icons.arrow_forward_ios_rounded,
                 size: 16,
-                color: colorScheme.onSurface.withOpacity(0.5),
+                color: colorScheme.onSurface.withValues(alpha: 0.5),
               ),
             ],
           ),
