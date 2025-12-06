@@ -7,9 +7,11 @@ class NotesProvider extends ChangeNotifier {
   // MAIN LISTS
   // ================================
   List<Note> _notes = [];
+  List<Note> _filteredNotes = [];
   List<Note> _trashNotes = [];
 
   List<Note> get notes => _notes;
+  List<Note> get filteredNotes => _filteredNotes;
   List<Note> get trashNotes => _trashNotes;
 
   // ================================
@@ -22,6 +24,7 @@ class NotesProvider extends ChangeNotifier {
 
   Future<void> loadNotes() async {
     _notes = await LocalStorageService.getNotes();
+    _filteredNotes = _notes;
     notifyListeners();
   }
 
@@ -52,6 +55,18 @@ class NotesProvider extends ChangeNotifier {
   Future<void> deleteNoteById(String id) async {
     await LocalStorageService.deleteNote(id);
     _notes.removeWhere((note) => note.id == id);
+    notifyListeners();
+  }
+
+  void searchNotes(String query) {
+    if (query.isEmpty) {
+      _filteredNotes = _notes;
+    } else {
+      _filteredNotes = _notes
+          .where((note) =>
+              note.title.toLowerCase().contains(query.toLowerCase()))
+          .toList();
+    }
     notifyListeners();
   }
 

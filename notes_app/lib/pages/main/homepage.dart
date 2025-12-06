@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:notes_app/pages/secondary/add_note.dart';
 import 'package:notes_app/pages/secondary/folders_page.dart';
+import 'package:notes_app/pages/secondary/search_page.dart';
 import 'package:notes_app/pages/secondary/settings.dart';
 import 'package:notes_app/pages/secondary/trash_page.dart';
 import 'package:notes_app/pages/secondary/view_note.dart';
@@ -65,6 +66,12 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         actions: [
+          IconButton(
+            icon: Icon(Icons.search, color: colorScheme.primary),
+            onPressed: () {
+              pushWithSlideFade(context, SearchPage());
+            },
+          ),
           // Sort Button
           PopupMenuButton<String>(
             icon: Icon(Icons.sort, color: colorScheme.primary),
