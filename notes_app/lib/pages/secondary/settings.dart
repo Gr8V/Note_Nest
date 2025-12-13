@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:notes_app/pages/secondary/trash_page.dart';
 import 'package:notes_app/theme/app_theme.dart';
 import 'package:notes_app/theme/colors.dart';
 import 'package:notes_app/theme/theme_controller.dart';
@@ -67,6 +68,14 @@ class _SettingsState extends State<Settings> {
               subtitle: const Text('Light, Dark, System'),
               onTap: () {
                 pushWithSlideFade(context, ThemeSelectionPage());
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.delete_outline),
+              title: const Text('Trash'),
+              subtitle: const Text('Restore, Permanently Delete Notes'),
+              onTap: () {
+                pushWithSlideFade(context, TrashPage());
               },
             ),
           ],
