@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+//pushes to next page with a slide fade animation
 void pushWithSlideFade(BuildContext context, Widget page) {
   Navigator.push(
     context,

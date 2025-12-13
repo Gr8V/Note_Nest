@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:notes_app/models/notes_model.dart';
+import 'package:notes_app/notes_model.dart';
 import 'package:notes_app/pages/secondary/edit_note.dart';
-import 'package:notes_app/providers/notes_provider.dart';
+import 'package:notes_app/notes_provider.dart';
 import 'package:notes_app/utils.dart';
 import 'package:provider/provider.dart';
 

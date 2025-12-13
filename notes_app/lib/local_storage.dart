@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:notes_app/models/notes_model.dart';
+import 'package:notes_app/notes_model.dart';
 import 'package:notes_app/theme/app_theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

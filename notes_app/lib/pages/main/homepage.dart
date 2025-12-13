@@ -3,7 +3,7 @@ import 'package:notes_app/pages/secondary/add_note.dart';
 import 'package:notes_app/pages/secondary/search_page.dart';
 import 'package:notes_app/pages/secondary/settings.dart';
 import 'package:notes_app/pages/secondary/view_note.dart';
-import 'package:notes_app/providers/notes_provider.dart';
+import 'package:notes_app/notes_provider.dart';
 import 'package:notes_app/utils.dart';
 import 'package:provider/provider.dart';
 
@@ -179,6 +179,7 @@ class _HomePageState extends State<HomePage> {
         child: _buildNotesList(notes, colorScheme),
       ),
 
+      //add note button
       floatingActionButton: FloatingActionButton(
         shape: const CircleBorder(),
         onPressed: () {
@@ -225,7 +226,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // 🎴 Individual Note Card
+  //Note Card
   Widget _buildNoteCard(dynamic note, ColorScheme colorScheme) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),

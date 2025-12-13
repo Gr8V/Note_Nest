@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:notes_app/models/notes_model.dart';
-import 'package:notes_app/services/local_storage.dart';
+import 'package:notes_app/notes_model.dart';
+import 'package:notes_app/local_storage.dart';
 
 class NotesProvider extends ChangeNotifier {
   // ================================
   // MAIN LISTS
   // ================================
+
+  //all notes
   List<Note> _notes = [];
+  //notes in search list
   List<Note> _filteredNotes = [];
+  //notes in trash bin
   List<Note> _trashNotes = [];
 
   List<Note> get notes => _notes;
@@ -74,22 +78,19 @@ class NotesProvider extends ChangeNotifier {
   // TRASH SYSTEM
   // ================================
 
-  /// Move note from main notes → trash
   Future<void> moveToTrash(Note note) async {
     await LocalStorageService.moveNoteToTrash(note);
 
-    // Update in-memory lists
+    // Update local lists
     _notes.removeWhere((n) => n.id == note.id);
     _trashNotes.add(note);
 
     notifyListeners();
   }
 
-  /// Restore Note: trash → main notes
   Future<void> restoreNote(String id) async {
     await LocalStorageService.restoreNote(id);
 
-    // Find the note inside trash list
     final index = _trashNotes.indexWhere((note) => note.id == id);
     if (index == -1) return;
 
@@ -102,7 +103,6 @@ class NotesProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Permanently delete a single note from trash
   Future<void> deleteFromTrash(String id) async {
     await LocalStorageService.deleteNoteFromTrash(id);
 
@@ -111,7 +111,6 @@ class NotesProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Empty the entire trash bin
   Future<void> emptyTrash() async {
     await LocalStorageService.emptyTrash();
 
